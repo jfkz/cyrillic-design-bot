@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.org/mike p./channel-to-spa-bot.svg?branch=master)](https://travis-ci.org/mike p./channel-to-spa-bot)
+[![Build Status](https://travis-ci.org/jfkz/channel-to-spa-bot.svg?branch=master)](https://travis-ci.org/jfkz/channel-to-spa-bot)
 # channel-to-spa-bot
 
 ## Usage
