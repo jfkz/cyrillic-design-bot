@@ -24,8 +24,10 @@ const bot = new Composer()
 bot.use(updateLogger({ colors: true }))
 bot.use(session())
 
-bot.start(({ reply }) => reply('Welcome message'))
-bot.help(({ reply }) => reply('Help message'))
+bot.start(({ reply }) => reply('Привет! Я бот, который публикует посты с каналов на сайтах.'))
+bot.help(({ reply }) =>
+  reply('Отправь мне форвард с канала, чтобы я мог опубликовать его. Или просто добавь в свой канал и я буду всё делать автоматически.')
+)
 bot.settings(({ reply }) => reply('Bot settings'))
 
 bot.command('date', ({ reply }) => reply(`Server time: ${Date()}`))
@@ -61,10 +63,12 @@ bot.on('message', async (ctx) => {
       && message.forward_from_chat.id == process.env.CHANNEL_ID) {
         await updatePost({ telegram: ctx.telegram, post: message, command: ctx.session.last_command })
         if (await updateFiles()) {
-          ctx.reply(`Пост обновлен #${message.forward_from_message_id}`) // : https://t.me/${message.forward_from_chat.username}/${message.forward_from_message_id}`)
+          ctx.reply(`Пост обновлен #${message.forward_from_message_id}`)
         } else {
-          ctx.reply(`Пост добавлен #${message.forward_from_message_id}`) // : https://t.me/${message.forward_from_chat.username}/${message.forward_from_message_id}`)
+          ctx.reply(`Пост добавлен #${message.forward_from_message_id}`)
         }
+    } else {
+      ctx.reply("Бот принимает только форварды сообщений от администраторов")
     }
     ctx.session.last_command = undefined
   }
