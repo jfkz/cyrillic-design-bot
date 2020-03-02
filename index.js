@@ -1,4 +1,4 @@
-const Composer = require("telegraf/telegraf");
+const Telegraf = require("telegraf/telegraf");
 const session = require("telegraf/session");
 const updateLogger = require("telegraf-update-logger");
 const https = require("https");
@@ -11,21 +11,26 @@ var Queue = require("bull");
 
 const mainFile = process.env.DATA_FOLDER + "/_data.json";
 
+/* Config queue */
 let postsQue = new Queue("posts queue");
-
 postsQue.process(function(job) {
   return updatePost(job.data);
 });
-
 postsQue.on("completed", function(job, result) {
-  // Job completed with output result!
-  console.log(`Job finished`);
-  console.log(job.data.post);
-  // console.log(job, result);
+  if (job.data.post) {
+    const post = job.data.post;
+    if (post.from && post.from.id && post.forward_from_message_id) {
+      bot.telegram.sendMessage(
+        post.from.id,
+        `Пост обновлен: #${post.forward_from_message_id}`,
+        {
+          reply_to_message_id: post.message_id
+        }
+      );
+    }
+  }
 });
-
 postsQue.on("global:drained", function() {
-  console.log(`Que drained id`);
   return updateFiles();
 });
 
@@ -36,11 +41,13 @@ const COMMANDS = {
   UNFAV: "unfav"
 };
 
-const bot = new Composer();
+const bot = new Telegraf();
 bot.telegram.token = process.env.BOT_TOKEN;
 
 bot.use(updateLogger({ colors: true }));
 bot.use(session());
+
+/* Commands */
 
 bot.start(({ reply }) =>
   reply("Привет! Я бот, который публикует посты с каналов на сайтах.")
@@ -112,7 +119,7 @@ bot.use(
     if (post) {
       if (post.chat.id == process.env.CHANNEL_ID) {
         if (post.photo) {
-          postsQue.add({ post: channelPost });
+          postsQue.add({ post: post });
         }
       }
       if (post.text == "/getid") {
@@ -212,7 +219,6 @@ async function updateFiles() {
     await exec(run);
     // Pages
     result = true;
-    console.log("data updated");
   }
   return result;
 }
