@@ -1,4 +1,5 @@
 const Telegraf = require("telegraf/telegraf");
+const TelegrafI18n = require("telegraf-i18n");
 const session = require("telegraf/session");
 const updateLogger = require("telegraf-update-logger");
 const https = require("https");
@@ -9,6 +10,12 @@ const Queue = require("bull");
 const cyrillicToTranslit = require("cyrillic-to-translit-js");
 
 const mainFile = process.env.DATA_FOLDER + "/_data.json";
+const COMMANDS = {
+  REMOVE: "delete",
+  UPDATE: "update",
+  FAV: "fav",
+  UNFAV: "unfav"
+};
 
 /* Config queue */
 let postsQue = new Queue("posts queue");
@@ -21,7 +28,9 @@ postsQue.on("completed", function(job, result) {
     if (post.from && post.from.id && post.forward_from_message_id) {
       bot.telegram.sendMessage(
         post.from.id,
-        `Пост обновлен: #${post.forward_from_message_id}`,
+        i18n.t(i18n.config.defaultLanguage, "USER.MESSAGE.POST_WAS_UPDATED", {
+          id: post.forward_from_message_id
+        }),
         {
           reply_to_message_id: post.message_id
         }
@@ -33,45 +42,25 @@ postsQue.on("global:drained", function() {
   return updateFiles();
 });
 
-const COMMANDS = {
-  REMOVE: "delete",
-  UPDATE: "update",
-  FAV: "fav",
-  UNFAV: "unfav"
-};
-
-const bot = new Telegraf();
-bot.telegram.token = process.env.BOT_TOKEN;
+/* Config bot */
+const bot = new Telegraf(process.env.BOT_TOKEN);
+const i18n = new TelegrafI18n({
+  directory: path.resolve(__dirname, "locales"),
+  defaultLanguage: "ru",
+  allowMissing: true, // Default true
+  useSession: true
+});
 
 bot.use(updateLogger({ colors: true }));
 bot.use(session());
+bot.use(i18n.middleware());
 
 /* Commands */
-
-bot.start(({ reply }) =>
-  reply("Привет! Я бот, который публикует посты с каналов на сайтах.")
-);
-bot.help(({ reply }) =>
-  reply(
-    "Отправь мне форвард с канала, чтобы я мог опубликовать его. Или просто добавь в свой канал и я буду всё делать автоматически."
-  )
-);
-bot.settings(({ reply }) => reply("Bot settings"));
-
-bot.command("date", ({ reply }) => reply(`Server time: ${Date()}`));
-
-bot.command("myid", ({ from, reply }) => {
-  reply(`Your id: ${from.id}`);
+bot.start(({ reply, i18n }) => reply(i18n.t("BOT.WELCOME_MESSAGE")));
+bot.help(({ reply, i18n }) => reply(i18n.t("BOT.HELP_MESSAGE")));
+bot.command("myid", ({ from, reply, i18n }) => {
+  reply(i18n.t("USER.MESSAGE.MYID", { id: from.id }));
 });
-
-bot.command("commit", async ({ from, reply }) => {
-  if (isAdmin(from.id)) {
-    if (await updateFiles()) {
-      reply("Сделан коммит");
-    }
-  }
-});
-
 bot.command(
   [COMMANDS.REMOVE, COMMANDS.UPDATE, COMMANDS.FAV, COMMANDS.UNFAV],
   ctx => {
@@ -94,7 +83,7 @@ bot.on("message", async ctx => {
         command: ctx.session.last_command
       });
     } else {
-      ctx.reply("Бот принимает только форварды сообщений от администраторов");
+      ctx.reply(ctx.i18n.t("USER.MESSAGE.DENY_REASON"));
     }
     ctx.session.last_command = undefined;
   }
@@ -106,7 +95,8 @@ bot.use(
     editedChannelPost,
     reply,
     telegram,
-    deleteMessage
+    deleteMessage,
+    i18n
   }) => {
     let post = channelPost || editedChannelPost;
     if (post) {
@@ -118,7 +108,10 @@ bot.use(
       if (post.text == "/getid") {
         let admins = process.env.ADMIN_IDS.split(",");
         for (var id in admins) {
-          telegram.sendMessage(admins[id], `Channel id: ${post.chat.id}`);
+          telegram.sendMessage(
+            admins[id],
+            i18n.t("CHANNEL.MESSAGE.CHANNEL_ID", { id: post.chat.id })
+          );
         }
         deleteMessage(post.message_id);
       }
@@ -126,6 +119,7 @@ bot.use(
   }
 );
 
+/* Support functions */
 function isAdmin(from_id) {
   let admins = process.env.ADMIN_IDS.split(",");
   for (var id in admins) {
@@ -136,6 +130,7 @@ function isAdmin(from_id) {
   return false;
 }
 
+/* Producer functions */
 async function updateFiles() {
   function writeFiles(file_mask, data) {
     data.sort((a, b) => b.id - a.id);
@@ -207,7 +202,9 @@ async function updateFiles() {
 
     const run = process.env.RUN_COMMAND.replace(
       "%s",
-      `upd: new data from bot. date: ` + new Date().toString().toLowerCase()
+      i18n.t(i18n.config.defaultLanguage, "BOT.COMMIT_MESSAGE", {
+        date: new Date().toString().toLowerCase()
+      })
     );
     await exec(run);
     // Pages

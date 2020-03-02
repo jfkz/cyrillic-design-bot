@@ -1,0 +1,12 @@
+BOT:
+  WELCOME_MESSAGE: "Привет! Я бот, который публикует посты с каналов на сайтах."
+  HELP_MESSAGE: "Отправь мне форвард с канала, чтобы я мог опубликовать его. Или просто добавь в свой канал и я буду всё делать автоматически."
+  COMMIT_MESSAGE: "upd: new data from bot. date: ${date}"
+USER:
+  MESSAGE:
+    MYID: "Твой id: ${id}"
+    DENY_REASON: "Бот принимает только форварды сообщений от администраторов"
+    POST_WAS_UPDATED: "Пост обновлен: #${id}"
+CHANNEL:
+  MESSAGE:
+    CHANNEL_ID: "Id канала: ${id}"
