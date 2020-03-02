@@ -4,10 +4,9 @@ const updateLogger = require("telegraf-update-logger");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
-const cyrillicToTranslit = require("cyrillic-to-translit-js");
 const { exec } = require("child_process");
-const countFiles = require("count-files");
-var Queue = require("bull");
+const Queue = require("bull");
+const cyrillicToTranslit = require("cyrillic-to-translit-js");
 
 const mainFile = process.env.DATA_FOLDER + "/_data.json";
 
@@ -94,12 +93,6 @@ bot.on("message", async ctx => {
         post: message,
         command: ctx.session.last_command
       });
-      // await updatePost({ telegram: ctx.telegram, post: message, command: ctx.session.last_command })
-      // if (await updateFiles()) {
-      // ctx.reply(`Пост обновлен #${message.forward_from_message_id}`);
-      // } else {
-      // ctx.reply(`Пост добавлен #${message.forward_from_message_id}`)
-      // }
     } else {
       ctx.reply("Бот принимает только форварды сообщений от администраторов");
     }
@@ -303,6 +296,7 @@ async function updatePost({ post, command }) {
   mainData[message_id] = {
     id: message_id,
     title: title,
+    caption: post.caption || "",
     image: `images/${file_name}`,
     tags: tags,
     url: url,

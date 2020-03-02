@@ -1,9 +1,9 @@
 {
   "name": "channel-to-spa-bot",
   "version": "0.0.0",
-  "description": "translate data from channel to spa",
+  "description": "Translate data from channel to spa on GitHub Pages",
   "repository": {
-    "url": "https://github.com/jfkz/cyrillic-design-bot",
+    "url": "https://github.com/cyrillic-design/copy-bot",
     "type": "git"
   },
   "main": "index.js",

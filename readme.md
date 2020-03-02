@@ -1,5 +1,5 @@
-
 [![Build Status](https://travis-ci.org/cyrillic-design/copy-bot.svg?branch=master)](https://travis-ci.org/cyrillic-design/copy-bot)
+
 # Copy bot
 
 The bot that control them all.
