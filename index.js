@@ -176,6 +176,7 @@ async function updateFiles() {
         tagDataUnordered[tag].push(post);
         tagSlugs[tag] = tagText;
       }
+      post.image = process.env.IMAGES_SLUG + post.image;
       acceptedData.push(post);
     }
     // Pages
@@ -298,7 +299,7 @@ async function updatePost({ post, command }) {
     id: message_id,
     title: title,
     caption: post.caption || "",
-    image: `images/${file_name}`,
+    image: file_name,
     tags: tags,
     url: url,
     date: date,
