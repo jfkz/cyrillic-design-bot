@@ -8,6 +8,7 @@ const path = require("path");
 const { exec } = require("child_process");
 const Queue = require("bull");
 const cyrillicToTranslit = require("cyrillic-to-translit-js");
+const glob = require("glob");
 
 const mainFile = process.env.DATA_FOLDER + "/_data.json";
 const COMMANDS = {
@@ -180,6 +181,9 @@ async function updateFiles() {
     // Pages
     writeFiles(process.env.DATA_FOLDER + "/page", Object.values(acceptedData));
     // Tags: sort
+    files = glob
+      .sync(process.env.DATA_FOLDER + "/tags-*")
+      .forEach(fs.unlinkSync);
     let tagData = {};
     Object.keys(tagDataUnordered)
       .sort()
@@ -190,7 +194,7 @@ async function updateFiles() {
           tagDataUnordered[key]
         );
       });
-    // Tags: make file
+    // Tags: make main file
     let tagsForFile = [];
     for (let slug in tagSlugs) {
       tagsForFile.push({ title: tagSlugs[slug], slug: slug });

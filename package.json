@@ -24,6 +24,7 @@
     "count-files": "^2.6.2",
     "cyrillic-to-translit-js": "^3.1.0",
     "dotenv-load": "^2.0.0",
+    "glob": "^7.1.6",
     "lockfile": "^1.0.4",
     "telegraf": "^3.34.0",
     "telegraf-i18n": "^6.6.0",
