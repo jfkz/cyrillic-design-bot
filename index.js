@@ -161,7 +161,7 @@ async function updateFiles() {
     for (let id in mainData) {
       let post = mainData[id];
       if (post.isRemoved) {
-        return;
+        continue;
       }
       post.slugs = [];
       for (let tag_id in post.tags) {
@@ -179,6 +179,7 @@ async function updateFiles() {
       post.image = process.env.IMAGES_SLUG + post.image;
       acceptedData.push(post);
     }
+
     // Pages
     writeFiles(process.env.DATA_FOLDER + "/page", Object.values(acceptedData));
     // Tags: sort
