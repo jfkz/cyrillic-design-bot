@@ -1,7 +1,7 @@
 BOT:
   WELCOME_MESSAGE: "Привет! Я бот, который публикует посты с каналов на сайтах."
   HELP_MESSAGE: "Отправь мне форвард с канала, чтобы я мог опубликовать его. Или просто добавь в свой канал и я буду всё делать автоматически."
-  COMMIT_MESSAGE: "upd: new data from bot. date: ${date}"
+  COMMIT_MESSAGE: "upd: new data from bot. count: ${updated}, posts: ${posts}"
 USER:
   MESSAGE:
     MYID: "Твой id: ${id}"

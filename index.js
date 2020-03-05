@@ -17,6 +17,7 @@ const COMMANDS = {
   FAV: "fav",
   UNFAV: "unfav"
 };
+let updatedPosts = [];
 
 /* Config queue */
 let postsQue = new Queue("posts queue");
@@ -27,6 +28,7 @@ postsQue.on("completed", function(job, result) {
   if (job.data.post) {
     const post = job.data.post;
     if (post.from && post.from.id && post.forward_from_message_id) {
+      updatedPosts.push(job.data.post.forward_from_message_id);
       bot.telegram.sendMessage(
         post.from.id,
         i18n.t(i18n.config.defaultLanguage, "USER.MESSAGE.POST_WAS_UPDATED", {
@@ -36,6 +38,8 @@ postsQue.on("completed", function(job, result) {
           reply_to_message_id: post.message_id
         }
       );
+    } else {
+      updatedPosts.push(job.data.post.message_id);
     }
   }
 });
@@ -209,9 +213,12 @@ async function updateFiles() {
     const run = process.env.RUN_COMMAND.replace(
       "%s",
       i18n.t(i18n.config.defaultLanguage, "BOT.COMMIT_MESSAGE", {
-        date: new Date().toString().toLowerCase()
+        date: new Date().toString().toLowerCase(),
+	updated: updatedPosts.length,
+	posts: updatedPosts.join(', ')
       })
     );
+    updatedPosts = [];
     await exec(run);
     // Pages
     result = true;
