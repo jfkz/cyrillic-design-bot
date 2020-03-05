@@ -137,14 +137,14 @@ async function updateFiles() {
     data.sort((a, b) => b.id - a.id);
     const file_size = process.env.PAGE_SIZE;
     if (data.length < file_size) {
-      let jsonData = JSON.stringify(data);
+      let jsonData = JSON.stringify(data, null, 2);
       fs.writeFileSync(`${file_mask}-1.json`, jsonData);
     } else {
       let page = 1;
       while (page <= Math.ceil(data.length / file_size)) {
         fs.writeFileSync(
           `${file_mask}-${page}.json`,
-          JSON.stringify(data.slice((page - 1) * file_size, page * file_size))
+          JSON.stringify(data.slice((page - 1) * file_size, page * file_size), null, 2)
         );
         page++;
       }
@@ -202,7 +202,7 @@ async function updateFiles() {
     }
     fs.writeFileSync(
       process.env.DATA_FOLDER + "/tags.json",
-      JSON.stringify(tagsForFile)
+      JSON.stringify(tagsForFile, null, 2)
     );
 
     const run = process.env.RUN_COMMAND.replace(
@@ -307,7 +307,7 @@ async function updatePost({ post, command }) {
     isHighlighted: isHighlighted,
     isRemoved: isRemoved
   };
-  let data = JSON.stringify(mainData);
+  let data = JSON.stringify(mainData, null, 2);
   return fs.writeFileSync(mainFile, data);
 }
 
