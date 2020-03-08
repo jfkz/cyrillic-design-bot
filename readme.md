@@ -7,12 +7,19 @@ The bot that control them all.
 
 ## Usage
 
+1. Create `.env.local` with your settings
+2. Run one of this sequences:
+
 ```sh
 $ npm install
-$ BOT_TOKEN='123:......' npm run dev
+$ npm run dev
 ```
 
 ```sh
 $ yarn
-$ BOT_TOKEN='123:......' yarn dev
+$ yarn dev
 ```
+
+## Lint
+
+You can use `git config core.hooksPath .githooks` command to enable autolinting before commit.
