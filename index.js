@@ -148,7 +148,11 @@ async function updateFiles() {
       while (page <= Math.ceil(data.length / file_size)) {
         fs.writeFileSync(
           `${file_mask}-${page}.json`,
-          JSON.stringify(data.slice((page - 1) * file_size, page * file_size), null, 2)
+          JSON.stringify(
+            data.slice((page - 1) * file_size, page * file_size),
+            null,
+            2
+          )
         );
         page++;
       }
@@ -214,8 +218,8 @@ async function updateFiles() {
       "%s",
       i18n.t(i18n.config.defaultLanguage, "BOT.COMMIT_MESSAGE", {
         date: new Date().toString().toLowerCase(),
-	updated: updatedPosts.length,
-	posts: updatedPosts.join(', ')
+        updated: updatedPosts.length,
+        posts: updatedPosts.join(", ")
       })
     );
     updatedPosts = [];
@@ -303,6 +307,9 @@ async function updatePost({ post, command }) {
     command == COMMANDS.FAV || command == COMMANDS.UNFAV
       ? command == COMMANDS.FAV
       : (mainData[message_id] && mainData[message_id].isHighlighted) || false;
+  if (mainData[message_id] && mainData[message_id].caption === post.caption) {
+    return true;
+  }
   mainData[message_id] = {
     id: message_id,
     title: title,
