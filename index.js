@@ -33,8 +33,7 @@ postsQue.on('completed', function (job, result) {
         post.from.id,
         i18n.t(i18n.config.defaultLanguage, 'USER.MESSAGE.POST_WAS_UPDATED', {
           id: post.forward_from_message_id
-        }),
-        {
+        }), {
           reply_to_message_id: post.message_id
         }
       )
@@ -81,7 +80,7 @@ bot.on('message', async ctx => {
     if (
       message.forward_from_chat &&
       message.forward_from_chat.id &&
-      message.forward_from_chat.id === process.env.CHANNEL_ID
+      message.forward_from_chat.id === parseInt(process.env.CHANNEL_ID)
     ) {
       postsQue.add({
         post: message,
@@ -105,7 +104,7 @@ bot.use(
   }) => {
     const post = channelPost || editedChannelPost
     if (post) {
-      if (post.chat.id === process.env.CHANNEL_ID) {
+      if (post.chat.id === parseInt(process.env.CHANNEL_ID)) {
         if (post.photo) {
           postsQue.add({ post: post })
         }
@@ -128,7 +127,7 @@ bot.use(
 function isAdmin (from_id) {
   const admins = process.env.ADMIN_IDS.split(',')
   for (var id in admins) {
-    if (admins[id] === from_id) {
+    if (parseInt(admins[id]) === from_id) {
       return true
     }
   }
