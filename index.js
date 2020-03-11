@@ -307,7 +307,7 @@ async function updatePost ({ post, command }) {
     command === COMMANDS.FAV || command === COMMANDS.UNFAV
       ? command === COMMANDS.FAV
       : (mainData[message_id] && mainData[message_id].isHighlighted) || false
-  if (mainData[message_id] && mainData[message_id].caption === post.caption) {
+  if (command === COMMANDS.UPDATE && mainData[message_id] && mainData[message_id].caption === post.caption) {
     return true
   }
   mainData[message_id] = {
