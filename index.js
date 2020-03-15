@@ -18,6 +18,7 @@ const COMMANDS = {
   UNFAV: ['unfav', 'uf']
 }
 let updatedPosts = []
+let lastCommand = COMMANDS.UPDATE[0]
 
 /* Config queue */
 const postsQue = new Queue('posts queue')
@@ -43,6 +44,7 @@ postsQue.on('completed', function (job, result) {
   }
 })
 postsQue.on('global:drained', function () {
+  lastCommand = COMMANDS.UPDATE[0]
   return updateFiles()
 })
 
@@ -69,27 +71,24 @@ bot.command(
   [...COMMANDS.REMOVE, ...COMMANDS.UPDATE, ...COMMANDS.FAV, ...COMMANDS.UNFAV],
   ctx => {
     if (!isAdmin(ctx.from.id)) { return }
-    ctx.session.last_command = ctx.message.text.replace('/', '')
+    lastCommand = ctx.message.text.replace('/', '')
   }
 )
 
 bot.on('message', async ctx => {
-  ctx.session.last_command = ctx.session.last_command || COMMANDS.UPDATE[0]
-  if (ctx.session.last_command) {
-    const message = ctx.message
-    if (
-      message.forward_from_chat &&
-      message.forward_from_chat.id &&
-      message.forward_from_chat.id === parseInt(process.env.CHANNEL_ID)
-    ) {
-      postsQue.add({
-        post: message,
-        command: ctx.session.last_command
-      })
-    } else {
-      ctx.reply(ctx.i18n.t('USER.MESSAGE.DENY_REASON'))
-    }
-    ctx.session.last_command = undefined
+  lastCommand = lastCommand || COMMANDS.UPDATE[0]
+  const message = ctx.message
+  if (
+    message.forward_from_chat &&
+    message.forward_from_chat.id &&
+    message.forward_from_chat.id === parseInt(process.env.CHANNEL_ID)
+  ) {
+    postsQue.add({
+      post: message,
+      command: lastCommand
+    })
+  } else {
+    ctx.reply(ctx.i18n.t('USER.MESSAGE.DENY_REASON'))
   }
 })
 
@@ -106,7 +105,8 @@ bot.use(
     if (post) {
       if (post.chat.id === parseInt(process.env.CHANNEL_ID)) {
         if (post.photo) {
-          postsQue.add({ post: post })
+          // If we editing post in channel - its always have to be UPDATE
+          postsQue.add({ post: post, command: COMMANDS.UPDATE[0] })
         }
       }
       if (post.text === '/getid') {
@@ -279,7 +279,7 @@ async function updatePost ({ post, command }) {
     }
   }
 
-  command = command || COMMANDS.UPDATE[0]
+  // command = command || COMMANDS.UPDATE[0]
   const message_id = post.forward_from_message_id || post.message_id
   const date = post.forward_date || post.date
   const edit_date = post.forward_from_message_id ? post.date : post.edit_date
@@ -299,8 +299,6 @@ async function updatePost ({ post, command }) {
     file_name: message_id
   })
   const { title, tags, url } = prepareData(post)
-  console.log(command)
-  console.log(COMMANDS.REMOVE.indexOf(command))
   const isRemoved =
     COMMANDS.REMOVE.indexOf(command) >= 0
       ? true
@@ -309,7 +307,7 @@ async function updatePost ({ post, command }) {
     COMMANDS.FAV.indexOf(command) >= 0 || COMMANDS.UNFAV.indexOf(command) >= 0
       ? COMMANDS.FAV.indexOf(command) >= 0
       : (mainData[message_id] && mainData[message_id].isHighlighted) || false
-  if (command === COMMANDS.UPDATE && mainData[message_id] && mainData[message_id].caption === post.caption) {
+  if (COMMANDS.UPDATE.indexOf(command) >= 0 && mainData[message_id] && mainData[message_id].caption === post.caption) {
     return true
   }
   mainData[message_id] = {
