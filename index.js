@@ -12,10 +12,10 @@ const glob = require('glob')
 
 const mainFile = process.env.DATA_FOLDER + '/_data.json'
 const COMMANDS = {
-  REMOVE: 'delete',
-  UPDATE: 'update',
-  FAV: 'fav',
-  UNFAV: 'unfav'
+  REMOVE: ['delete', 'd', 'rm'],
+  UPDATE: ['update', 'u', 'upd'],
+  FAV: ['fav', 'f'],
+  UNFAV: ['unfav', 'uf']
 }
 let updatedPosts = []
 
@@ -66,15 +66,15 @@ bot.command('myid', ({ from, reply, i18n }) => {
   reply(i18n.t('USER.MESSAGE.MYID', { id: from.id }))
 })
 bot.command(
-  [COMMANDS.REMOVE, COMMANDS.UPDATE, COMMANDS.FAV, COMMANDS.UNFAV],
+  [...COMMANDS.REMOVE, ...COMMANDS.UPDATE, ...COMMANDS.FAV, ...COMMANDS.UNFAV],
   ctx => {
-    if (isAdmin(ctx.from.id)) { return }
+    if (!isAdmin(ctx.from.id)) { return }
     ctx.session.last_command = ctx.message.text.replace('/', '')
   }
 )
 
 bot.on('message', async ctx => {
-  ctx.session.last_command = ctx.session.last_command || COMMANDS.UPDATE
+  ctx.session.last_command = ctx.session.last_command || COMMANDS.UPDATE[0]
   if (ctx.session.last_command) {
     const message = ctx.message
     if (
@@ -279,7 +279,7 @@ async function updatePost ({ post, command }) {
     }
   }
 
-  command = command || COMMANDS.UPDATE
+  command = command || COMMANDS.UPDATE[0]
   const message_id = post.forward_from_message_id || post.message_id
   const date = post.forward_date || post.date
   const edit_date = post.forward_from_message_id ? post.date : post.edit_date
@@ -299,13 +299,15 @@ async function updatePost ({ post, command }) {
     file_name: message_id
   })
   const { title, tags, url } = prepareData(post)
+  console.log(command)
+  console.log(COMMANDS.REMOVE.indexOf(command))
   const isRemoved =
-    command === COMMANDS.REMOVE
+    COMMANDS.REMOVE.indexOf(command) >= 0
       ? true
       : (mainData[message_id] && mainData[message_id].isRemoved) || false
   const isHighlighted =
-    command === COMMANDS.FAV || command === COMMANDS.UNFAV
-      ? command === COMMANDS.FAV
+    COMMANDS.FAV.indexOf(command) >= 0 || COMMANDS.UNFAV.indexOf(command) >= 0
+      ? COMMANDS.FAV.indexOf(command) >= 0
       : (mainData[message_id] && mainData[message_id].isHighlighted) || false
   if (mainData[message_id] && mainData[message_id].caption === post.caption) {
     return true
