@@ -15,7 +15,9 @@ const COMMANDS = {
   REMOVE: ['delete', 'd', 'rm'],
   UPDATE: ['update', 'u', 'upd'],
   FAV: ['fav', 'f'],
-  UNFAV: ['unfav', 'uf']
+  UNFAV: ['unfav', 'uf'],
+  MONTH: ['month', 'm'],
+  YEAR: ['year', 'y']
 }
 let updatedPosts = []
 let lastCommand = COMMANDS.UPDATE[0]
@@ -68,7 +70,7 @@ bot.command('myid', ({ from, reply, i18n }) => {
   reply(i18n.t('USER.MESSAGE.MYID', { id: from.id }))
 })
 bot.command(
-  [...COMMANDS.REMOVE, ...COMMANDS.UPDATE, ...COMMANDS.FAV, ...COMMANDS.UNFAV],
+  [...COMMANDS.REMOVE, ...COMMANDS.UPDATE, ...COMMANDS.FAV, ...COMMANDS.UNFAV, ...COMMANDS.MONTH, ...COMMANDS.YEAR],
   ctx => {
     if (!isAdmin(ctx.from.id)) { return }
     lastCommand = ctx.message.text.replace('/', '')
@@ -184,6 +186,9 @@ async function updateFiles () {
         tagSlugs[tag] = tagText
       }
       post.image = process.env.IMAGES_SLUG + post.image
+      post.awards = []
+      if (post.isMonth) { post.awards.push('month') }
+      if (post.isYear) { post.awards.push('year') }
       acceptedData.push(post)
     }
 
@@ -279,7 +284,6 @@ async function updatePost ({ post, command }) {
     }
   }
 
-  // command = command || COMMANDS.UPDATE[0]
   const message_id = post.forward_from_message_id || post.message_id
   const date = post.forward_date || post.date
   const edit_date = post.forward_from_message_id ? post.date : post.edit_date
@@ -310,6 +314,14 @@ async function updatePost ({ post, command }) {
   if (COMMANDS.UPDATE.indexOf(command) >= 0 && mainData[message_id] && mainData[message_id].caption === post.caption) {
     return true
   }
+  const isMonth =
+    mainData[message_id]
+      ? (COMMANDS.MONTH.indexOf(command) >= 0 ? !mainData[message_id].isMonth : mainData[message_id].isMonth)
+      : COMMANDS.MONTH.indexOf(command) >= 0
+  const isYear =
+    mainData[message_id]
+      ? (COMMANDS.YEAR.indexOf(command) >= 0 ? !mainData[message_id].isYear : mainData[message_id].isYear)
+      : COMMANDS.YEAR.indexOf(command) >= 0
   mainData[message_id] = {
     id: message_id,
     title: title,
@@ -319,6 +331,8 @@ async function updatePost ({ post, command }) {
     url: url,
     date: date,
     edit_date: edit_date,
+    isMonth: isMonth,
+    isYear: isYear,
     isHighlighted: isHighlighted,
     isRemoved: isRemoved
   }
