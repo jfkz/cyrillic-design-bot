@@ -278,6 +278,7 @@ async function updatePost ({ post, command }) {
           break
       }
     }
+    title = title.split('\n')[0]
     return {
       url: url,
       tags: tags,
