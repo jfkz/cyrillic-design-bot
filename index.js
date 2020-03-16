@@ -72,19 +72,20 @@ bot.command('myid', ({ from, reply, i18n }) => {
 bot.command(
   [...COMMANDS.REMOVE, ...COMMANDS.UPDATE, ...COMMANDS.FAV, ...COMMANDS.UNFAV, ...COMMANDS.MONTH, ...COMMANDS.YEAR],
   ctx => {
-    if (!isAdmin(ctx.from.id)) { return }
+    if (!isAdmin(ctx.from.id)) { return ctx.reply(ctx.i18n.t('USER.MESSAGE.DENY_REASON')) }
     lastCommand = ctx.message.text.replace('/', '')
   }
 )
 
 bot.on('message', async ctx => {
-  lastCommand = lastCommand || COMMANDS.UPDATE[0]
   const message = ctx.message
   if (
+    isAdmin(ctx.from.id) &&
     message.forward_from_chat &&
     message.forward_from_chat.id &&
     message.forward_from_chat.id === parseInt(process.env.CHANNEL_ID)
   ) {
+    // lastCommand = lastCommand || COMMANDS.UPDATE[0]
     postsQue.add({
       post: message,
       command: lastCommand
@@ -288,7 +289,7 @@ async function updatePost ({ post, command }) {
   const date = post.forward_date || post.date
   const edit_date = post.forward_from_message_id ? post.date : post.edit_date
   if (!post || !post.photo) {
-    return
+    return false
   }
   let mainData = {}
   if (!fs.existsSync(process.env.DATA_FOLDER)) {
@@ -312,7 +313,7 @@ async function updatePost ({ post, command }) {
       ? COMMANDS.FAV.indexOf(command) >= 0
       : (mainData[message_id] && mainData[message_id].isHighlighted) || false
   if (COMMANDS.UPDATE.indexOf(command) >= 0 && mainData[message_id] && mainData[message_id].caption === post.caption) {
-    return true
+    return false
   }
   const isMonth =
     mainData[message_id]
