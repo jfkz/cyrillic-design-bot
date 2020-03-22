@@ -1,0 +1,7 @@
+{
+  "name": "Telegram to GitHub publisher",
+  "description": "Node.js app using Telegraf which deploy data to GitHub Pages",
+  "repository": "https://github.com/cyrillic-design/copy-bot",
+  "logo": "https://avatars1.githubusercontent.com/u/61554086?s=200&v=4",
+  "keywords": ["node", "telegraf", "gh-pages"]
+}

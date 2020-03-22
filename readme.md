@@ -23,3 +23,14 @@ $ yarn dev
 ## Lint
 
 You can use `git config core.hooksPath .githooks` command to enable autolinting before commit.
+
+
+## Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+Setup Heroku variables:
+* `ADMIN_IDS` - Telegram IDs of channel admins
+* `CHANNEL_ID` - channel id for auto-deploy
+* `WEBHOOK_URL` - Something like: https://cyrillic-design-bot.herokuapp.com/
+* `BOT_TOKEN` - Telegram token from [BotFather](https://t.me/botfather)
