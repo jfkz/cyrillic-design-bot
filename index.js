@@ -68,7 +68,7 @@ bot.use(i18n.middleware())
 
 /* Setup webhook */
 const webhookHost = new URL(process.env.WEBHOOK_URL)
-if(webhookHost.hostname) {
+if (webhookHost.hostname) {
   require('http')
     .createServer(bot.webhookCallback(webhookHost.path))
     .listen(process.env.PORT)
