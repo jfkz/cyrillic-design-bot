@@ -20,8 +20,10 @@ const COMMANDS = {
   MONTH: ['month', 'm'],
   YEAR: ['year', 'y']
 }
+const lastCommandFile = './lastCommand.local'
 let updatedPosts = []
 let lastCommand = COMMANDS.UPDATE[0]
+let webhookEnabled = false
 
 /* Config queue */
 const postsQue = new Queue('posts queue')
@@ -47,7 +49,7 @@ postsQue.on('completed', function (job, result) {
   }
 })
 postsQue.on('global:drained', function () {
-  lastCommand = COMMANDS.UPDATE[0]
+  setLastCommand(COMMANDS.UPDATE[0])
   return updateFiles()
 })
 
@@ -71,8 +73,9 @@ try { // Use try to hide parser error
   const webhookHost = new URL(process.env.WEBHOOK_URL)
   if (webhookHost.hostname) {
     require('http')
-      .createServer(bot.webhookCallback(webhookHost.path))
+      .createServer(bot.webhookCallback(webhookHost.pathname))
       .listen(process.env.PORT)
+    webhookEnabled = true
   }
 } catch (e) {}
 
@@ -86,7 +89,7 @@ bot.command(
   [...COMMANDS.REMOVE, ...COMMANDS.UPDATE, ...COMMANDS.FAV, ...COMMANDS.UNFAV, ...COMMANDS.MONTH, ...COMMANDS.YEAR],
   ctx => {
     if (!isAdmin(ctx.from.id)) { return ctx.reply(ctx.i18n.t('USER.MESSAGE.DENY_REASON')) }
-    lastCommand = ctx.message.text.replace('/', '')
+    setLastCommand(ctx.message.text.replace('/', ''))
   }
 )
 
@@ -101,7 +104,7 @@ bot.on('message', async ctx => {
     // lastCommand = lastCommand || COMMANDS.UPDATE[0]
     postsQue.add({
       post: message,
-      command: lastCommand
+      command: getLastCommand()
     })
   } else {
     ctx.reply(ctx.i18n.t('USER.MESSAGE.DENY_REASON'))
@@ -148,6 +151,27 @@ function isAdmin (from_id) {
     }
   }
   return false
+}
+
+function getLastCommand () {
+  if (webhookEnabled) {
+    if (fs.existsSync(mainFile)) {
+      let cmd = fs.readFileSync(lastCommandFile)
+      return cmd
+    } else {
+      return COMMANDS.UPDATE[0]
+    }
+  } else {
+    return lastCommand
+  }
+}
+
+function setLastCommand (cmd) {
+  if (webhookEnabled) {
+    fs.writeFileSync(lastCommandFile, cmd)
+  } else {
+    lastCommand = cmd
+  }
 }
 
 /* Producer functions */
