@@ -67,12 +67,14 @@ bot.use(session())
 bot.use(i18n.middleware())
 
 /* Setup webhook */
-const webhookHost = new URL(process.env.WEBHOOK_URL)
-if (webhookHost.hostname) {
-  require('http')
-    .createServer(bot.webhookCallback(webhookHost.path))
-    .listen(process.env.PORT)
-}
+try { // Use try to hide parser error
+  const webhookHost = new URL(process.env.WEBHOOK_URL)
+  if (webhookHost.hostname) {
+    require('http')
+      .createServer(bot.webhookCallback(webhookHost.path))
+      .listen(process.env.PORT)
+  }
+} catch (e) {}
 
 /* Commands */
 bot.start(({ reply, i18n }) => reply(i18n.t('BOT.WELCOME_MESSAGE')))
