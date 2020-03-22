@@ -34,3 +34,7 @@ Setup Heroku variables:
 * `CHANNEL_ID` - channel id for auto-deploy
 * `WEBHOOK_URL` - Something like: https://cyrillic-design-bot.herokuapp.com/
 * `BOT_TOKEN` - Telegram token from [BotFather](https://t.me/botfather)
+
+Also you have to install ssh key to enable automatic commit: https://github.com/simon0191/custom-ssh-key-buildpack
+
+&copy; 2020, [@jfkz](https://github.com/jfkz)
