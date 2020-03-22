@@ -10,6 +10,7 @@ const Queue = require('bull')
 const cyrillicToTranslit = require('cyrillic-to-translit-js')
 const glob = require('glob')
 
+/* Setup constants */
 const mainFile = process.env.DATA_FOLDER + '/_data.json'
 const COMMANDS = {
   REMOVE: ['delete', 'd', 'rm'],
@@ -59,9 +60,19 @@ const i18n = new TelegrafI18n({
   useSession: true
 })
 
-bot.use(updateLogger({ colors: true }))
+if (process.env.NODE_ENV !== 'production') {
+  bot.use(updateLogger({ colors: true }))
+}
 bot.use(session())
 bot.use(i18n.middleware())
+
+/* Setup webhook */
+const webhookHost = new URL(process.env.WEBHOOK_URL)
+if(webhookHost.hostname) {
+  require('http')
+    .createServer(bot.webhookCallback(webhookHost.path))
+    .listen(process.env.PORT)
+}
 
 /* Commands */
 bot.start(({ reply, i18n }) => reply(i18n.t('BOT.WELCOME_MESSAGE')))
