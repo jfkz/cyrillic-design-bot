@@ -43,4 +43,4 @@ config/config.json
 config/sequelizeData.json
 
 # Data
-/web
+/_web
