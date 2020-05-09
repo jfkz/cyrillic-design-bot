@@ -1,3 +1,5 @@
+require('dotenv-load')()
+
 const Telegraf = require('telegraf/telegraf')
 const TelegrafI18n = require('telegraf-i18n')
 const session = require('telegraf/session')
@@ -379,4 +381,4 @@ async function updatePost ({ post, command }) {
   return fs.writeFileSync(mainFile, data)
 }
 
-module.exports = bot
+bot.launch()
