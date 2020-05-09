@@ -158,8 +158,7 @@ function isAdmin (from_id) {
 function getLastCommand () {
   if (webhookEnabled) {
     if (fs.existsSync(mainFile)) {
-      let cmd = fs.readFileSync(lastCommandFile)
-      return cmd
+      return fs.readFileSync(lastCommandFile)
     } else {
       return COMMANDS.UPDATE[0]
     }
