@@ -1,7 +1,7 @@
 module.exports = {
-  apps : [{
+  apps: [{
     name: 'cyrillic-design-bot',
     script: 'index.js',
     watch: '.'
   }]
-};
+}
