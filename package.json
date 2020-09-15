@@ -8,8 +8,8 @@
   },
   "main": "index.js",
   "scripts": {
-    "dev": " dotenv-load supervisor -x telegraf index.js",
-    "start": "dotenv-load telegraf",
+    "dev": " dotenv-load supervisor -x node index.js",
+    "start": "dotenv-load node index.js",
     "now-start": "dotenv-load telegraf -d ${NOW_URL}",
     "lint": "eslint .",
     "test": "npm run lint"

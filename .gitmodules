@@ -1,5 +1,0 @@
-[submodule "web"]
-	path = _web
-	url = git@github.com:cyrillic-design/cyrillic-design.github.io.git
-	branch = master
-	update = merge
