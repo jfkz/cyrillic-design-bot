@@ -3,7 +3,7 @@ require('dotenv-load')()
 const Telegraf = require('telegraf/telegraf')
 const TelegrafI18n = require('telegraf-i18n')
 const session = require('telegraf/session')
-const updateLogger = require('telegraf-update-logger')
+// const updateLogger = require('telegraf-update-logger')
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
@@ -11,6 +11,8 @@ const { exec } = require('child_process')
 const Queue = require('bull')
 const cyrillicToTranslit = require('cyrillic-to-translit-js')
 const glob = require('glob')
+const colors = require('colors');
+
 
 /* Setup constants */
 const mainFile = process.env.DATA_FOLDER + '/_data.json'
@@ -64,9 +66,9 @@ const i18n = new TelegrafI18n({
   useSession: true
 })
 
-if (process.env.NODE_ENV !== 'production') {
-  bot.use(updateLogger({ colors: true }))
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   bot.use(updateLogger({ colors: true }))
+// }
 bot.use(session())
 bot.use(i18n.middleware())
 
@@ -201,8 +203,13 @@ async function updateFiles () {
 
   let result = false
   if (fs.existsSync(mainFile)) {
-    const rawdata = fs.readFileSync(mainFile)
-    const mainData = JSON.parse(rawdata)
+    let mainData = {}
+    try {
+      const rawdata = fs.readFileSync(mainFile)
+      mainData = JSON.parse(rawdata)
+    } catch (err) {
+      console.log(err.toString().red)
+    }
     const tagDataUnordered = {}
     const tagSlugs = []
     const acceptedData = []
@@ -379,5 +386,11 @@ async function updatePost ({ post, command }) {
   const data = JSON.stringify(mainData, null, 2)
   return fs.writeFileSync(mainFile, data)
 }
+
+bot.handleError = (err) => {
+  const text = (err.stack || err.toString()).replace(/^/gm, '  ') 
+  console.log(text.red)
+}
+
 
 bot.launch()
