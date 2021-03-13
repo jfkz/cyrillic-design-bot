@@ -387,7 +387,7 @@ async function updatePost ({ post, command }) {
 }
 
 bot.handleError = (err) => {
-  const text = (err.stack || err.toString()).replace(/^/gm, '  ') 
+  const text = (err.stack || err.toString()).replace(/^/gm, '  ')
   console.log(text.red)
 }
 
