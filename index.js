@@ -1,4 +1,5 @@
 require('dotenv-load')()
+require('colors')
 
 const Telegraf = require('telegraf/telegraf')
 const TelegrafI18n = require('telegraf-i18n')
@@ -11,8 +12,6 @@ const { exec } = require('child_process')
 const Queue = require('bull')
 const cyrillicToTranslit = require('cyrillic-to-translit-js')
 const glob = require('glob')
-const colors = require('colors');
-
 
 /* Setup constants */
 const mainFile = process.env.DATA_FOLDER + '/_data.json'
@@ -391,6 +390,5 @@ bot.handleError = (err) => {
   const text = (err.stack || err.toString()).replace(/^/gm, '  ') 
   console.log(text.red)
 }
-
 
 bot.launch()
