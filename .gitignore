@@ -41,3 +41,7 @@ coverage
 # Sequelize config
 config/config.json
 config/sequelizeData.json
+
+#
+.env
+pages

@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  bot:
+    container_name: copy_bot
+    build: .
+    restart: unless-stopped
+    environment:
+      - TAKE_FILE_OWNERSHIP=true
+    ports:
+      - ${DOCKER_SERVER_PORT:-127.0.0.1:3000}:3000
+    volumes:
+      - ~/.ssh:/root/.ssh
+    env_file:
+      - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
