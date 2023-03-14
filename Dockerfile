@@ -4,11 +4,10 @@ RUN apk add --no-cache git openssh-client
 
 RUN mkdir /app
 
-COPY ./package*.json /app
+COPY ./package*.json /app/
 COPY ./locales /app/locales
 COPY ./index.js /app/index.js
 
-VOLUME /app/index.js
 VOLUME /app/pages
 VOLUME /root/.ssh
 
