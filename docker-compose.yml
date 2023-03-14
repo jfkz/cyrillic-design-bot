@@ -11,9 +11,32 @@ services:
       - ${DOCKER_SERVER_PORT:-127.0.0.1:3000}:3000
     volumes:
       - ~/.ssh:/root/.ssh
+      - ./pages:/app/pages
     env_file:
       - .env
     logging:
       driver: "json-file"
       options:
         max-size: "5m"
+    depends_on:
+      - redis
+    networks:
+      - copy
+
+  redis:
+    container_name: copy_redis
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - copy
+    volumes:
+      - copy-redis:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+
+networks:
+  copy:
+volumes:
+  copy-redis:

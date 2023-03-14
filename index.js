@@ -29,7 +29,8 @@ let lastCommand = COMMANDS.UPDATE[0]
 let webhookEnabled = false
 
 /* Config queue */
-const postsQue = new Queue('posts queue')
+const redisHost = process.env.REDIS_HOST || '127.0.0.1'
+const postsQue = new Queue('posts queue', { redis: { port: 6379, host: redisHost } })
 postsQue.process(function (job) {
   return updatePost(job.data)
 })
@@ -271,10 +272,17 @@ async function updateFiles () {
         posts: updatedPosts.join(', ')
       })
     )
+    console.log(run)
     updatedPosts = []
-    await exec(run)
-    // Pages
-    result = true
+    result = await new Promise((resolve) => exec(run, (err, stdout, stderr) => {
+      if (!err) {
+        console.log(stdout)
+        resolve(true)
+      } else {
+        console.log(err)
+        resolve(false)
+      }
+    }))
   }
   return result
 }
