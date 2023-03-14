@@ -14,6 +14,8 @@ VOLUME /root/.ssh
 WORKDIR /app
 RUN npm ci
 
+RUN git config --global --add safe.directory /app/pages
+
 ENV HOST=0.0.0.0
 
 CMD ["npm", "start"]
